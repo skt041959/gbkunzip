@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+# fileencoding=utf-8
+
+'''
+解压 zip 文件，其中的文件名是 GB18030 编码，但系统是 Unicode 编码
+'''
+
+import sys, os, time
+from gi.repository import Notify
+
+from gbzip import ZipFile
+from getpass import getpass
+
+from PyQt4 import QtCore, QtGui
+
+
+
+class GbkUnzip(QtGui.QWidget):
+
+    unzip_start = QtCore.pyqtSignal()
+
+    def __init__(self, filename):
+        super(GbkUnzip, self).__init__()
+        self.filename = filename
+        self.unzip_start.connect(self.unzip)
+
+        self.trayIcon = QtGui.QSystemTrayIcon(self)
+        self.trayIcon.show()
+
+        menu = QtGui.QMenu(self)
+
+        self.exitAction = menu.addAction("Exit")
+        self.trayIcon.setContextMenu(menu)
+
+        self.exitAction.triggered.connect(self.close)
+
+        self.unzip_start.emit()
+
+    def unzip(self):
+        z = ZipFile(self.filename)
+        while True:
+            try:
+                z.extractall()
+            except RuntimeError: # encrypted zipfile
+                passwd = getpass('Enter correct password: ').encode()
+                z.setpassword(passwd)
+            else:
+                break
+        print('Everything is ok.')
+        #self.trayIcon.showMessage("Extract Finished.", self.filename+" Extract Finished.", msecs=1000)
+
+        finish_note=Notify.Notification.new("Extract Finished.", self.filename+" Extract Finished.", "dialog-information")
+        finish_note.show ()
+
+        self.timer = QtCore.QTimer(self)
+        self.timer.singleShot(500, self.close)
+
+def main():
+    Notify.init ("gbkunzip")
+    app = QtGui.QApplication(sys.argv)
+
+    try:
+        w = GbkUnzip(sys.argv[1])
+    except IndexError:
+        sys.exit('give me exactly one zipfile to extract.')
+
+    sys.exit(app.exec_())
+
+if __name__ == '__main__':
+    main()
