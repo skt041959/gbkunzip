@@ -1,7 +1,5 @@
 # gbkunzip
 
-gbkunzip
-
 =========
 
 原作者[依云](http://lilydjwg.is-programmer.com/posts/16293)
