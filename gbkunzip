@@ -6,7 +6,8 @@
 '''
 
 import sys, os, time
-from gi.repository import Notify
+#from gi.repository import Notify
+import notify2
 
 from gbzip import ZipFile
 from getpass import getpass
@@ -49,14 +50,14 @@ class GbkUnzip(QtGui.QWidget):
         print('Everything is ok.')
         #self.trayIcon.showMessage("Extract Finished.", self.filename+" Extract Finished.", msecs=1000)
 
-        finish_note=Notify.Notification.new("Extract Finished.", self.filename+" Extract Finished.", "dialog-information")
-        finish_note.show ()
+        finish_note=notify2.Notification("Extract Finished.", self.filename+" Extract Finished.", "dialog-information")
+        finish_note.show()
 
         self.timer = QtCore.QTimer(self)
         self.timer.singleShot(500, self.close)
 
 def main():
-    Notify.init ("gbkunzip")
+    notify2.init("gbkunzip")
     app = QtGui.QApplication(sys.argv)
 
     try:
